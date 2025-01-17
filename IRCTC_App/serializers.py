@@ -80,3 +80,13 @@ class TrainSerializer(serializers.ModelSerializer):
         if not value.isdigit():
             raise serializers.ValidationError("Train number must be numeric.")
         return value
+     
+class TrainAvailabilitySerializer(serializers.ModelSerializer):
+    seat_availability = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Train
+        fields = ['id', 'train_name', 'train_number', 'source', 'destination', 'seat_availability']
+
+    def get_seat_availability(self, obj):
+        return obj.total_seats - obj.booked_seats

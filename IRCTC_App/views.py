@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import generics,status
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import LoginSerializer
+from .serializers import LoginSerializer,TrainAvailabilitySerializer  
 from rest_framework.permissions import IsAdminUser
 from .models import Train
 
@@ -47,3 +47,20 @@ class AddTrainView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+class TrainAvailabilityView(APIView):
+    permission_classes = [AllowAny] 
+
+    def get(self, request, *args, **kwargs):
+        source = request.query_params.get('source')
+        destination = request.query_params.get('destination')
+
+        if not source or not destination:
+            return Response({"error": "Source and destination are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        trains = Train.objects.filter(source__iexact=source, destination__iexact=destination)
+
+        if not trains.exists():
+            return Response({"message": "No trains found for the given route."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = TrainAvailabilitySerializer(trains, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
