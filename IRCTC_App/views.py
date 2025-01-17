@@ -1,19 +1,15 @@
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserSerializer,RegisterSerializer
+from .serializers import UserSerializer,RegisterSerializer,TrainSerializer
 from django.contrib.auth.models import User
 from rest_framework.authentication import TokenAuthentication
-from rest_framework import generics
-from rest_framework import status
+from rest_framework import generics,status
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import LoginSerializer
 from rest_framework.permissions import IsAdminUser
 from .models import Train
-from .serializers import TrainSerializer
 
-
-# Class based view to Get User Details using Token Authentication
 class UserDetailAPI(APIView):
   authentication_classes = (TokenAuthentication,)
   permission_classes = (AllowAny,)
@@ -22,7 +18,6 @@ class UserDetailAPI(APIView):
     serializer = UserSerializer(user)
     return Response(serializer.data)
 
-#Class based view to register user
 class RegisterUserAPIView(generics.CreateAPIView):
   permission_classes = (AllowAny,)
   serializer_class = RegisterSerializer
@@ -34,7 +29,6 @@ class LoginView(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
 
-        # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
 
         return Response({
@@ -43,14 +37,6 @@ class LoginView(APIView):
             "username": user.username,
             "email": user.email
         }, status=status.HTTP_200_OK)
-        
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAdminUser
-from .models import Train
-from .serializers import TrainSerializer
 
 class AddTrainView(APIView):
     permission_classes = [IsAdminUser]
