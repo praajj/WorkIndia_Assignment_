@@ -3,7 +3,9 @@ from django.contrib.auth.models import User
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 from IRCTC_App.models import CustomUser
-
+from django.contrib.auth import authenticate
+from rest_framework.exceptions import AuthenticationFailed
+from .models import Train
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -43,10 +45,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-from rest_framework import serializers
-from django.contrib.auth import authenticate
-from rest_framework.exceptions import AuthenticationFailed
-from IRCTC_App.models import CustomUser
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
@@ -66,8 +64,6 @@ class LoginSerializer(serializers.Serializer):
         attrs['user'] = user
         return attrs
 
-from rest_framework import serializers
-from .models import Train
 
 class TrainSerializer(serializers.ModelSerializer):
     class Meta:
