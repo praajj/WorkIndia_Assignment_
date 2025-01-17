@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.models import User
+from django.conf import settings
 
 class CustomUser(AbstractUser):
     phone_number = models.CharField(max_length=15, blank=True, null=True)
@@ -23,3 +25,8 @@ class Train(models.Model):
             raise ValueError("No seats available.")
         self.booked_seats += 1
         self.save()
+        
+class Booking(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    train = models.ForeignKey('Train', on_delete=models.CASCADE)
+    booking_time = models.DateTimeField(auto_now_add=True)
