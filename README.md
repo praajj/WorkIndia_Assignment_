@@ -9,15 +9,15 @@ Installation ->
 2. Set Up a Virtual Environment
 - python -m venv env
 - source env/bin/activate
-4. Install Dependencies
-5. Set Up the Database
+3. Install Dependencies
+4. Set Up the Database
 - python manage.py makemigrations
 - python manage.py migrate
-6. Create a Superuser
+5. Create a Superuser
 - python manage.py createsuperuser
-7. Run the Development Server
+6. Run the Development Server
 - python manage.py runserver
-8. Test it in Postman
+7. Test it in Postman
 7.a Register/Signup -> http://127.0.0.1:8000/register (POST)
 Body example -> {
     "username": "example_user",
