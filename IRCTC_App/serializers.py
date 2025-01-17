@@ -90,3 +90,19 @@ class TrainAvailabilitySerializer(serializers.ModelSerializer):
 
     def get_seat_availability(self, obj):
         return obj.total_seats - obj.booked_seats
+     
+class BookSeatSerializer(serializers.Serializer):
+    train_id = serializers.IntegerField()
+
+    def validate(self, data):
+        train_id = data.get('train_id')
+        try:
+            train = Train.objects.get(id=train_id)
+        except Train.DoesNotExist:
+            raise serializers.ValidationError("Train does not exist.")
+
+        if train.booked_seats >= train.total_seats:
+            raise serializers.ValidationError("No seats available on this train.")
+
+        data['train'] = train
+        return data

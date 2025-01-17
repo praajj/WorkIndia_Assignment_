@@ -18,3 +18,8 @@ class Train(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     def available_seats(self):
         return self.total_seats - self.booked_seats
+    def book_seat(self):
+        if self.booked_seats >= self.total_seats:
+            raise ValueError("No seats available.")
+        self.booked_seats += 1
+        self.save()

@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import generics,status
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import LoginSerializer,TrainAvailabilitySerializer  
+from .serializers import LoginSerializer,TrainAvailabilitySerializer,BookSeatSerializer 
 from rest_framework.permissions import IsAdminUser
 from .models import Train
 
@@ -64,3 +64,22 @@ class TrainAvailabilityView(APIView):
 
         serializer = TrainAvailabilitySerializer(trains, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+      
+class BookSeatView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = BookSeatSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        train = serializer.validated_data['train']
+        try:
+            train.book_seat()
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            "message": "Seat booked successfully.",
+            "train_name": train.train_name,
+            "train_number": train.train_number,
+            "booked_seats": train.booked_seats,
+            "available_seats": train.total_seats - train.booked_seats
+        }, status=status.HTTP_200_OK)
