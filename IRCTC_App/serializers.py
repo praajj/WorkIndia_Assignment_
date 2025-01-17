@@ -65,3 +65,22 @@ class LoginSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+from rest_framework import serializers
+from .models import Train
+
+class TrainSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Train
+        fields = ['id', 'train_name', 'train_number', 'source', 'destination']
+        extra_kwargs = {
+            'train_name': {'required': True},
+            'train_number': {'required': True},
+            'source': {'required': True},
+            'destination': {'required': True},
+        }
+
+    def validate_train_number(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError("Train number must be numeric.")
+        return value

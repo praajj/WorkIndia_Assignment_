@@ -7,3 +7,10 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+class Train(models.Model):
+    train_name = models.CharField(max_length=100, unique=True)
+    train_number = models.CharField(max_length=10, unique=True)
+    source = models.CharField(max_length=100)
+    destination = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)

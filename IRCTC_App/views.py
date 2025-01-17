@@ -5,11 +5,12 @@ from .serializers import UserSerializer,RegisterSerializer
 from django.contrib.auth.models import User
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import generics
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import LoginSerializer
+from rest_framework.permissions import IsAdminUser
+from .models import Train
+from .serializers import TrainSerializer
 
 
 # Class based view to Get User Details using Token Authentication
@@ -42,3 +43,21 @@ class LoginView(APIView):
             "username": user.username,
             "email": user.email
         }, status=status.HTTP_200_OK)
+        
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAdminUser
+from .models import Train
+from .serializers import TrainSerializer
+
+class AddTrainView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request, *args, **kwargs):
+        serializer = TrainSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
