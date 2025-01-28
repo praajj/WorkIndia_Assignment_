@@ -68,12 +68,13 @@ class LoginSerializer(serializers.Serializer):
 class TrainSerializer(serializers.ModelSerializer):
     class Meta:
         model = Train
-        fields = ['id', 'train_name', 'train_number', 'source', 'destination']
+        fields = ['id', 'train_name', 'train_number', 'source', 'destination', 'total_seats'] 
         extra_kwargs = {
             'train_name': {'required': True},
             'train_number': {'required': True},
             'source': {'required': True},
             'destination': {'required': True},
+            'total_seats': {'required': True},  
         }
 
     def validate_train_number(self, value):

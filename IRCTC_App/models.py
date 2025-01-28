@@ -15,7 +15,7 @@ class Train(models.Model):
     train_number = models.CharField(max_length=10, unique=True)
     source = models.CharField(max_length=100)
     destination = models.CharField(max_length=100)
-    total_seats = models.IntegerField(default=0)
+    total_seats = models.IntegerField()
     booked_seats = models.IntegerField(default=0) 
     created_at = models.DateTimeField(auto_now_add=True)
     def available_seats(self):
