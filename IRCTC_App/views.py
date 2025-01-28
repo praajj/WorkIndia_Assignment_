@@ -11,6 +11,8 @@ from .serializers import LoginSerializer,TrainAvailabilitySerializer,BookSeatSer
 from rest_framework.permissions import IsAdminUser
 from .models import Train
 from django.db import transaction
+from rest_framework import status
+from .models import Train, Booking
 
 class UserDetailAPI(APIView):
   authentication_classes = (TokenAuthentication,)
@@ -77,55 +79,19 @@ class BookSeatView(APIView):
 
         try:
             with transaction.atomic():
-                # Lock the train record for update (this will prevent race conditions)
+                
                 train = Train.objects.select_for_update().get(id=train.id)
-
-                # Check if there are available seats
+                
                 if train.booked_seats >= train.total_seats:
-                    return Response({"status": "error", "message": "No seats available."}, status=400)
+                    return Response({
+                        "status": "error",
+                        "message": "No seats available."
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
-                # Book a seat
-                train.book_seat()
-
-                # Create booking record
-                booking = Booking.objects.create(
-                    user=request.user,
-                    train=train
-                )
-
-                return Response({
-                    "status": "success",
-                    "message": "Seat booked successfully.",
-                    "booking_id": booking.id,
-                    "train_name": train.train_name,
-                    "train_number": train.train_number,
-                    "booked_seats": train.booked_seats,
-                    "available_seats": train.available_seats()
-                }, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response({"status": "error", "message": str(e)}, status=500)
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        serializer = BookSeatSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        train = serializer.validated_data['train']
-
-        try:
-            with transaction.atomic():
-                # Lock the train record for update
-                train = Train.objects.select_for_update().get(id=train.id)
-
-                # Check seat availability again
-                if train.booked_seats >= train.total_seats:
-                    return Response({"status": "error", "message": "No seats available."}, status=400)
-
-                # Increment booked seats
+                
                 train.booked_seats += 1
                 train.save()
 
-                # Create booking record
                 booking = Booking.objects.create(
                     user=request.user,
                     train=train
@@ -139,7 +105,14 @@ class BookSeatView(APIView):
                     "train_number": train.train_number,
                     "booked_seats": train.booked_seats,
                     "available_seats": train.total_seats - train.booked_seats
-                }, status=201)
-
+                }, status=status.HTTP_201_CREATED)
+        except Train.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Train not found."
+            }, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response({"status": "error", "message": str(e)}, status=500)
+            return Response({
+                "status": "error",
+                "message": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
